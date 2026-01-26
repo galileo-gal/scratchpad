@@ -36,7 +36,7 @@ I’ll cover for **each project**:
 
 ## 2) Project A — **ML-Aware CPU Scheduler**
 
-![CPU Scheduler Timeline](cpu_scheduler_timeline.png)
+![CPU Scheduler Timeline](images/5_DeterministicChart.jpg)
 ![Linux Process Scheduling](linux_process_scheduling.png)
 ![Context Switch Diagram](context_switch.png)
 
