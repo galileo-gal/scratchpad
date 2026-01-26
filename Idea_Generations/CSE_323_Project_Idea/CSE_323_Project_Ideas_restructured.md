@@ -36,9 +36,11 @@ I’ll cover for **each project**:
 
 ## 2) Project A — **ML-Aware CPU Scheduler**
 
-![CPU Scheduler Timeline](images/5_DeterministicChart.jpg)
-![Linux Process Scheduling](linux_process_scheduling.png)
-![Context Switch Diagram](context_switch.png)
+<p align="center">
+  <img src="images/5_DeterministicChart.jpg" width="32%" />
+  <img src="images/different-schedulars-in-kernal.jpg" width="32%" />
+  <img src="images/6625e0dd705fecca2a10eb67_62bdd65646ffd517030673cb_16_data_drift_dashboard.png" width="32%" />
+</p>
 
 
 
@@ -139,6 +141,12 @@ This directly prepares you for:
 ---
 
 ## 3) Project B — **Concurrency Lab: ML Inference Server (Threads vs Processes)**
+
+<p align="center">
+  <img src="images/1_QiaqQ0HLT4Iy0N608A5mVA.png" width="32%" />
+  <img src="images/concurrency-models-2.png" width="32%" />
+  <img src="images/different-schedulars-in-kernal.jpg" width="32%" />
+</p>
 
 ### 1) Short 2–3 liners: what it does
 You build a system that answers this OS question:
@@ -253,6 +261,13 @@ This maps directly to:
 
 ## 4) Project C — **Tiny RTOS on STM32 + PC-side ML Brain**
 
+<p align="center">
+  <img src="images/61DX7isVBBL._AC_UF894,1000_QL80_.jpg" width="32%" />
+  <img src="images/Basic-block-diagram-of-an-embedded-system.png" width="32%" />
+  <img src="images/27ec7765-9631-44f2-b70c-34fb0d8881ef.jpg" width="32%" />
+</p>
+
+
 ### 1) Short 2–3 liners: what it does
 You split intelligence and control:
 
@@ -346,6 +361,13 @@ A lightweight classifier/regressor that converts sensor signals into a **state/d
 ---
 
 ## 5) Project D — **Hybrid OS + AI + Monitoring Dashboard** ⭐ (Very Pitch-Friendly)
+<p align="center">
+  <img src="images/6625e0dd705fecca2a10eb67_62bdd65646ffd517030673cb_16_data_drift_dashboard.png" width="32%" />
+  <img src="images/different-schedulars-in-kernal.jpg" width="32%" />
+  <img src="images/5_DeterministicChart.jpg" width="32%" />
+</p>
+
+
 
 ### 1) Short 2–3 liners: what it does
 This project answers:
