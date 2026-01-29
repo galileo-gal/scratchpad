@@ -1,7 +1,7 @@
 # CSE-323 (Operating Systems) + ML/AI Project Ideas (Project Galib)
 
 > **Note:** This document is **restructured** for clarity **without removing any information**.  
-> The **full original draft (verbatim)** is included at the end under **Appendix A**.
+> The **full original draft (verbatim)** is included in the folder as well.
 
 ---
 
