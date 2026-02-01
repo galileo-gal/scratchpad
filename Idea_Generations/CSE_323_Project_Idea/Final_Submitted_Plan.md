@@ -1,9 +1,9 @@
 # Adaptive ML Inference Server: OS Concurrency Study
 
-**Student**: [Your Name]  
+**Student**: Abdullah Al Galib  
+**ID**: 2232535642 &emsp;&emsp; **Sec**: 2              
 **Course**: CSE-323 Operating Systems  
-**Faculty**: [Faculty Name]  
-**Submission Date**: [Date]
+**Faculty**: Dr. Safat Siddiqui (SSI)  
 
 ---
 
@@ -325,6 +325,15 @@ class MetaScheduler:
 - **IDE**: VS Code with WSL extension (or any text editor)
 - **Terminal**: Windows Terminal with WSL2 profile
 
+### Hardware Specifications (Confirmed Available)
+- **CPU**: Intel Core i5-11th Generation (4 physical cores, 8 logical threads via Hyper-Threading)
+- **RAM**: 16GB DDR3 (2 × 8GB sticks)
+- **Storage**: 256GB SSD with 50GB+ available space
+- **Machine**: Dell Inspiron Laptop
+- **OS**: Windows 11  with WSL2 (Ubuntu 22.04 LTS)
+
+*Performance Note*: All throughput and latency targets are calibrated for this hardware profile. The 4-core CPU limits process pool to 4 workers maximum, which is optimal for measuring process vs thread trade-offs.
+
 ## Success Metrics
 
 ### Quantitative Goals
@@ -435,15 +444,38 @@ class MetaScheduler:
 3. Show metrics dashboard updating
 4. Explain why the switch happened (OS concepts)
 
+
+
 ---
 
-## Questions for Faculty
+## Why This Project Aligns With My Goals
 
-1. **Scope Preference**: Should I target Tier 2 (realistic) or Tier 3 (ambitious with risk)?
-2. **C Extension**: Is bypassing GIL in scope, or should I stick to pure Python?
-3. **Evaluation**: Would you prefer depth (one concurrency model, very detailed) or breadth (all three, less deep)?
-4. **Collaboration**: Can this extend beyond one semester if results are promising?
-5. **Resources**: Any lab machines available, or should I run everything on my laptop?
+I'm pursuing a career in AI/ML engineering, specifically focusing on MLOps and production machine learning systems. While many students concentrate solely on model development and algorithms, I recognize that **deployment and infrastructure are where most AI projects fail in production**.
+
+### Current Gap in Knowledge
+- **What I know**: Machine learning algorithms, model training with Python (scikit-learn, basic PyTorch)
+- **What I'm missing**: Understanding of operating systems infrastructure that powers ML at scale
+- **This project addresses**: How OS-level decisions (concurrency, scheduling, memory management) affect real ML workloads
+
+### Learning Objectives
+By completing this project, I aim to confidently answer:
+- Why do production inference servers struggle under load?
+- How do I profile and optimize concurrent systems?
+- What architecture decisions matter for ML deployment?
+- When should I use threads vs processes vs async in production ML systems?
+
+### Career Direction
+**Target Role**: MLOps Engineer or ML Infrastructure Engineer at scale-ups or tech companies building production AI platforms (similar to teams at companies running large-scale ML inference systems).
+
+**Why This Matters**: The difference between academic ML and production ML is the infrastructure layer. This project is my bridge from "can train models" to "can deploy models reliably at scale with proper systems engineering."
+
+### Current Preparation
+- **Systems Knowledge**: Basic understanding of processes, threads, memory from coursework; ready to dive deep
+- **Linux Experience**: Minimal currently, but prepared to learn (installing WSL2, learning command line tools as part of this project)
+- **ML Background**: Comfortable with Python ML libraries; have worked on classification and regression projects
+- **Time Commitment**: Dedicating 15-20 hours/week to this project alongside coursework
+
+I'm excited about this intersection of OS and ML because it directly maps to real-world infrastructure challenges in AI deployment.
 
 ---
 
