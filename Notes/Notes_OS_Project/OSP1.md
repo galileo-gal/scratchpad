@@ -20,21 +20,7 @@ OSP1/
 │
 ├── OSP1_Process_Thread_Management.md
 │
-└── images/
-    ├── bare_metal_vs_os.png
-    ├── os_as_resource_manager.png
-    ├── layered_os_view.png
-    ├── user_kernel_mode.png
-    ├── cpu_mode_switch.png
-    ├── interrupt_trap_flow.png
-    ├── system_call_flow.png
-    ├── os_services_overview.png
-```
 
-I will reference images exactly like this:
-
-```md
-![User vs Kernel Mode](images/user_kernel_mode.png)
 ```
 
 ---
@@ -154,7 +140,6 @@ Hide hardware complexity
 
 Think of the OS as a **strict traffic controller**.
 
-![OS as Resource Manager](images/os_as_resource_manager.png)
 
 ### Managed Resources
 
@@ -179,7 +164,6 @@ It tells each program:
 * “You have memory”
 * “You run alone”
 
-![Layered OS View](images/layered_os_view.png)
 
 This illusion is created using:
 
@@ -207,7 +191,6 @@ Privileged instructions include:
 * Modify page tables
 * Control MMU
 
-![User vs Kernel Mode](images/user_kernel_mode.png)
 
 📌 If user code could do these → **system destroyed**
 
@@ -241,7 +224,7 @@ There are **only controlled doors**.
 1. **Interrupts** (hardware-generated)
 2. **Traps / System calls** (software-generated)
 
-![CPU Mode Switch](images/cpu_mode_switch.png)
+
 
 📌 User code **cannot jump into kernel mode freely**
 
@@ -256,7 +239,7 @@ There are **only controlled doors**.
 | Unpredictable  | Controlled           |
 | Example: timer | Example: `read()`    |
 
-![Interrupt and Trap Flow](images/interrupt_trap_flow.png)
+
 
 ---
 
@@ -289,7 +272,7 @@ What happens:
 4. OS does the work
 5. Returns safely
 
-![System Call Flow](images/system_call_flow.png)
+
 
 ---
 
@@ -323,7 +306,7 @@ User program
 
 From Silberschatz Chapter 1:
 
-![OS Services Overview](images/os_services_overview.png)
+
 
 ### User-Oriented Services
 
@@ -446,7 +429,7 @@ A **process** is:
 * With **memory**
 * With **OS tracking**
 
-![Program vs Process](images/process_vs_program.png)
+
 
 > **Key sentence (exam-safe)**
 > A program is a passive entity stored on disk, whereas a process is an active entity representing the execution of a program together with its current state.
@@ -476,7 +459,7 @@ Yet OS must:
 
 A **process = 3 tightly bound things**
 
-![Process Components](images/process_components.png)
+
 
 ### 1️⃣ Address Space
 
@@ -494,7 +477,7 @@ Each process believes it owns **all memory**.
 
 Reality: it owns **none physically**.
 
-![Process Address Space Detailed](images/process_address_space_detailed.png)
+
 
 ```
 High Address
@@ -531,7 +514,7 @@ A process uses **logical (virtual) addresses**.
 
 Hardware uses **physical addresses**.
 
-![Logical vs Physical Memory](images/logical_vs_physical_memory.png)
+
 
 Flow:
 
@@ -577,7 +560,7 @@ Nothing less works.
 
 ## B7. Process States (Not Just Names — Meaning)
 
-![Process States Extended](images/process_states_extended.png)
+
 
 ### The Five Core States
 
@@ -609,7 +592,7 @@ Waiting = waiting **for event**
 
 > **If processes exist, PCB must exist.**
 
-![PCB Full Layout](images/pcb_full_layout.png)
+
 
 ---
 
@@ -651,7 +634,7 @@ A **context switch** happens when:
 * CPU stops executing Process A
 * Starts executing Process B
 
-![Context Switch Timeline](images/context_switch_timeline.png)
+
 
 ---
 
@@ -674,7 +657,7 @@ Without timer interrupt:
 
 * One process could run forever
 
-![Timer Interrupt Context Switch](images/timer_interrupt_context_switch.png)
+
 
 Timer interrupt guarantees:
 
@@ -875,7 +858,7 @@ A thread is a **flow of execution inside that container**.
 
 ### Single-Threaded Process
 
-![Single Thread Process](images/single_thread_process.png)
+
 
 * One PC
 * One stack
@@ -885,7 +868,7 @@ A thread is a **flow of execution inside that container**.
 
 ### Multi-Threaded Process
 
-![Multi Thread Process](images/multi_thread_process.png)
+
 
 * Multiple PCs
 * Multiple stacks
@@ -899,7 +882,7 @@ A thread is a **flow of execution inside that container**.
 
 This must be crystal clear.
 
-![Thread Memory Model](images/thread_memory_model.png)
+
 
 ### Shared Between Threads
 
@@ -937,7 +920,7 @@ If stacks were shared:
 
 This is where **performance difference** comes from.
 
-![Thread vs Process Context](images/thread_context_vs_process_context.png)
+
 
 ### Process Context Contains
 
@@ -976,7 +959,7 @@ This is the *only* reason threads can be faster.
 
 ## C7. Thread Lifecycle (Simpler Than You Think)
 
-![Thread Lifecycle](images/thread_lifecycle.png)
+
 
 States are conceptually same as process:
 
@@ -1015,7 +998,7 @@ Difference:
 
 ## C9. Threads vs Processes — The Truth Table
 
-![Thread vs Process Comparison](images/thread_vs_process_comparison.png)
+
 
 | Aspect         | Process   | Thread        |
 | -------------- | --------- | ------------- |
@@ -1068,7 +1051,7 @@ Processes don’t have this problem by default.
 
 ### Reason 3: Cache Contention
 
-![Cache Sharing Threads](images/cache_sharing_threads.png)
+
 
 Threads:
 
@@ -1081,7 +1064,7 @@ Threads:
 
 ### Reason 4: False Sharing (Very Important)
 
-![False Sharing Example](images/false_sharing_example.png)
+
 
 Two threads modify:
 
