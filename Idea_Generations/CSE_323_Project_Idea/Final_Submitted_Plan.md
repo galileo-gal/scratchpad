@@ -33,73 +33,131 @@
 
 ## Technical Approach
 
-### Phase 1: Multi-Model Concurrency Server (Weeks 1-4)
+### Phase 1: Concurrency Fundamentals with Diverse Workloads (Weeks 1-4)
 
-**Objective**: Build three versions of the same ML inference server, each using a different OS concurrency primitive.
+**Objective**: Build three versions of a general task execution server, each using a different OS concurrency primitive. Study concurrency behavior across multiple workload types (CPU-bound, I/O-bound, memory-bound, and simple ML tasks) before scaling to complex ML models in Phase 2.
+
+**Pedagogical Approach**: Start with simpler, diverse computational tasks to isolate and understand core OS concurrency concepts (threading, multiprocessing, async I/O, scheduling). Once fundamentals are mastered, apply this knowledge to complex ML workloads in subsequent phases.
+
+#### Workload Categories (Phase 1)
+
+Phase 1 uses a **diverse task suite** to understand how different workload characteristics interact with concurrency primitives:
+
+| Task Type | Example | Computational Pattern | Expected Concurrency Behavior |
+|-----------|---------|----------------------|------------------------------|
+| **CPU-Bound** | Matrix multiplication (NumPy) | Pure computation | Threads limited by GIL, processes scale |
+| **I/O-Bound** | File operations, HTTP requests | Waiting on external resources | Threads efficient, async excellent |
+| **Memory-Bound** | Large array sorting | Data movement heavy | Cache effects visible |
+| **Mixed** | File read + computation | CPU + I/O combined | Reveals scheduling trade-offs |
+| **ML (Simple)** | Scikit-learn prediction | CPU-bound with library overhead | Baseline for Phase 2 comparison |
+
+**Rationale**: By testing concurrency models against diverse workloads, we can systematically identify which OS primitives suit which computational patterns, before applying these insights to complex ML models (Phase 2).
 
 #### Implementation A: Multi-threaded Server
 - **Framework**: Flask + Python threading
 - **Architecture**: Thread pool (configurable size: 2, 4, 8 threads)
-- **Synchronization**: Queue for request management, Lock for shared model access
-- **Key Learning**: GIL impact, thread context switching cost, lock contention
-
+- **Synchronization**: Queue for request management, Lock for shared resources
+- **Workloads**: All 5 task types above
+- **Key Learning**: GIL impact on CPU vs I/O tasks, thread context switching cost, lock contention
 ```python
 # Conceptual structure
-class ThreadedInferenceServer:
-    def __init__(self, models, num_threads):
+class ThreadedTaskServer:
+    def __init__(self, num_threads):
         self.request_queue = Queue()
         self.thread_pool = [Thread(target=self.worker) for _ in range(num_threads)]
-        self.models = models  # Shared memory
         self.lock = Lock()
+        self.workloads = {
+            'cpu_bound': matrix_multiply_task,
+            'io_bound': file_operation_task,
+            'memory_bound': large_sort_task,
+            'mixed': file_compute_task,
+            'ml_simple': sklearn_prediction_task
+        }
     
     def worker(self):
         while True:
             request = self.request_queue.get()
+            task_func = self.workloads[request.task_type]
             with self.lock:  # Measure contention here
-                result = self.models[request.model_id].predict(request.data)
+                result = task_func(request.data)
             self.send_response(result)
 ```
 
 #### Implementation B: Multi-process Server
 - **Framework**: Python multiprocessing + message passing
-- **Architecture**: Process pool (2, 4)
-- **IPC**: Pipes for request/response, shared memory for models (to avoid duplication)
-- **Key Learning**: Process isolation benefits, IPC overhead, memory duplication costs
-
+- **Architecture**: Process pool (2, 4 processes)
+- **IPC**: Pipes for request/response
+- **Workloads**: Same 5 task types for direct comparison
+- **Key Learning**: Process isolation benefits, IPC overhead, memory duplication costs, CPU-bound task scaling
 ```python
 # Conceptual structure
-class ProcessInferenceServer:
-    def __init__(self, models, num_processes):
+class ProcessTaskServer:
+    def __init__(self, num_processes):
         self.task_queue = multiprocessing.Queue()
         self.result_queue = multiprocessing.Queue()
-        self.shared_models = self.load_to_shared_memory(models)
         self.process_pool = [Process(target=self.worker) for _ in range(num_processes)]
+        # Each process loads workloads independently
+    
+    def worker(self):
+        workloads = load_task_suite()  # Per-process loading
+        while True:
+            request = self.task_queue.get()
+            result = workloads[request.task_type](request.data)
+            self.result_queue.put(result)
 ```
 
 #### Implementation C: Async I/O Server
 - **Framework**: FastAPI + asyncio
 - **Architecture**: Event loop with async/await
-- **Key Learning**: When non-blocking I/O helps, when CPU-bound tasks break async model
-
+- **Workloads**: Same 5 task types
+- **Key Learning**: When non-blocking I/O helps (I/O-bound tasks), when CPU-bound tasks block the event loop, async vs threading trade-offs
 ```python
 # Conceptual structure
-async def handle_inference(request):
-    model = models[request.model_id]
-    # CPU-bound operation - this blocks the event loop
-    result = await asyncio.to_thread(model.predict, request.data)
-    return result
+from fastapi import FastAPI
+import asyncio
+
+app = FastAPI()
+workloads = load_task_suite()
+
+@app.post("/execute/{task_type}")
+async def execute_task(task_type: str, data: dict):
+    task_func = workloads[task_type]
+    # Use thread pool for CPU-bound tasks to avoid blocking event loop
+    result = await asyncio.to_thread(task_func, data)
+    return {"result": result}
 ```
 
-#### C Extension for GIL Bypass (Advanced/Optional)
-- **Objective**: For CPU-intensive inference, release GIL in C extension
-- **Implementation**: Wrap critical NumPy operations in Py_BEGIN_ALLOW_THREADS / Py_END_ALLOW_THREADS
-- **Measurement**: Compare threaded server with/without GIL release
+#### Basic Scheduling (Introduced in Phase 1)
 
-**Deliverable**: Three working servers, instrumented for metrics collection
+Implement **FIFO** and **Priority-based** scheduling with the diverse workload mix:
 
+**FIFO (Baseline)**:
+- Simple queue, process in arrival order
+- Expected result: fair but inefficient (head-of-line blocking when slow tasks arrive first)
+
+**Priority-based**:
+- Assign priority based on task type: `priority = {'ml_simple': 1, 'io_bound': 2, 'memory_bound': 3, 'cpu_bound': 4}`
+- Prevents fast tasks waiting behind slow ones
+- Demonstrates basic scheduling impact
+
+**Note**: Advanced scheduling (SJF with ML prediction, MLFQ) remains in Phase 3.
+
+#### Phase 1 Deliverables
+
+1. **Task Suite**: 5 characterized workloads with measured baseline performance
+2. **Three Servers**: Threaded, process-based, and async implementations
+3. **Performance Data**: Latency, throughput, CPU usage, context switches across all (3 concurrency models × 5 task types)
+4. **Basic Scheduling**: FIFO vs Priority comparison
+5. **Analysis Report**: 
+   - Which concurrency model suits which workload type
+   - GIL effects quantified
+   - IPC overhead measured
+   - Foundation for Phase 2 ML-specific analysis
+
+**Transition to Phase 2**: With concurrency fundamentals established using diverse tasks, Phase 2 loads complex ML models (MobileNet, DistilBERT, LSTM) into the same infrastructure to study ML-specific concurrency challenges.
 ---
 
-### Phase 2: ML Workload Characterization (Weeks 3-6)
+### Phase 2: ML Workload Characterization (Weeks 3–6)
 
 **Objective**: Load real ML models with different computational profiles. Understand how model characteristics interact with concurrency choices.
 
