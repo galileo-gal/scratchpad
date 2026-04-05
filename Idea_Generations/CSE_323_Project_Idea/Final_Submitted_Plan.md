@@ -1,3 +1,4 @@
+
 # Adaptive ML Inference Server: OS Concurrency Study - Phase 1
 
 **Student**: Abdullah Al Galib  
@@ -56,7 +57,7 @@ Phase 1 uses a **diverse task suite** to understand how different workload chara
 - **Key Learning**: GIL impact on CPU vs I/O tasks, thread context switching cost, lock contention, scheduling policy effects
 
 ```python
-# Conceptual structure
+# Implementation structure
 class ThreadedTaskServer:
     def __init__(self, num_threads, scheduler_type):
         self.scheduler = FIFOScheduler() if scheduler_type == 'fifo' else PriorityScheduler()
@@ -208,35 +209,6 @@ Request (JSON POST) → Scheduler (FIFO/Priority) → Dispatcher → Executor (T
 
 ---
 
-## Skills Demonstrated
-
-### Operating Systems Concepts
-**Core**:
-- Process vs thread architecture
-- Synchronization primitives (locks, queues)
-- Context switching measurement
-- **Scheduling algorithms (FIFO, Priority)**
-- **Waiting time, starvation, fairness analysis**
-
-**Intermediate**:
-- GIL implications for Python concurrency
-- IPC mechanisms (queues, pipes)
-- CPU time and context switch delta tracking
-- Async I/O event loop behavior
-
-**Advanced**:
-- Policy vs mechanism separation (scheduler vs executor)
-- OS-level profiling with psutil
-- Dispatcher design pattern for scheduling
-
-### Software Engineering
-- Reproducible experiment design
-- Structured logging (JSON, JSONL)
-- Performance profiling and analysis
-- Clean architecture (separation of concerns)
-
----
-
 ## Why This Project Aligns With Course Objectives
 
 **OS Course Focus**: Understanding operating systems through practical implementation and measurement.
@@ -253,6 +225,74 @@ Request (JSON POST) → Scheduler (FIFO/Priority) → Dispatcher → Executor (T
 - Controlled variables (same workloads across all implementations)
 - Quantitative metrics with statistical analysis (p50/p95/p99)
 - Reproducible methodology (config files, JSONL logs, experiment.yaml)
+
+---
+
+### Learning Objectives
+By completing this project, I aim to confidently answer:
+- Why do concurrent servers struggle under load?
+- How do I profile and optimize concurrent systems?
+- What architecture decisions matter for task execution?
+- When should I use threads vs processes vs async?
+- How do scheduling policies affect fairness and performance?
+
+---
+
+## Skills Demonstrated
+
+### Operating Systems Concepts
+
+**Core**:
+- Process vs thread architecture and memory models
+- Synchronization primitives (locks, queues, semaphores)
+- Context switching measurement and analysis
+- Scheduling algorithms (FIFO, Priority)
+- Waiting time, starvation, fairness analysis
+
+**Intermediate**:
+- GIL implications for Python concurrency
+- IPC mechanisms (pipes, queues, shared memory)
+- Copy-on-write memory optimization
+- CPU affinity and scheduling effects
+- Delta-based resource tracking
+
+**Advanced**:
+- Policy vs mechanism separation (scheduler vs executor)
+- Kernel-level profiling with perf (noted for Linux)
+- NUMA awareness considerations
+- Dispatcher design pattern for scheduling
+
+### Software Engineering
+- Reproducible experiment design
+- Structured logging (JSON, JSONL)
+- Performance profiling and analysis
+- Clean architecture (separation of concerns)
+
+---
+
+## Related Academic Work
+
+### Papers That Inspired This
+
+1. **"Clipper: A Low-Latency Online Prediction Serving System"** (NSDI 2017)
+   - Addresses model selection and batching for inference
+   - Our scheduler extends their prediction caching ideas
+
+2. **"TensorFlow: A System for Large-Scale Machine Learning"** (OSDI 2016)
+   - Discusses parallelism strategies for ML workloads
+   - We focus on inference-level concurrency primitives
+
+3. **"Analysis of Large-Scale Multi-Tenant GPU Clusters for DNN Training Workloads"** (ATC 2019)
+   - Studies scheduling in GPU clusters
+   - Our CPU-based study is analogous for scheduling analysis
+
+4. **"Towards ML-Centric Cloud Platforms"** (ACM Computing Surveys 2020)
+   - Reviews ML infrastructure challenges
+   - We tackle concurrency and scheduling specifically
+
+### How This Extends Prior Work
+
+**Novel Contribution**: Systematic comparison of OS concurrency primitives and scheduling policies specifically for diverse workloads including ML inference. Most prior work assumes one concurrency model; we compare all three and analyze scheduling policy impact on waiting time and fairness.
 
 ---
 
@@ -284,7 +324,29 @@ The scope is realistic for 4 weeks, the learning outcomes map directly to OS cou
 
 ---
 
-**Appendix: Directory Structure**
+**Appendix A: Detailed Metrics Reference**
+
+| Metric | How to Measure | Why It Matters | Tool/Method |
+|--------|----------------|----------------|-------------|
+| **Latency (p50, p95, p99)** | Time from request arrival to response | User experience, tail behavior | Locust aggregation |
+| **Throughput (req/sec)** | Completed requests per second | System capacity | Locust stats |
+| **Waiting Time** | `dequeue_time - enqueue_time` | Scheduling efficiency | Job timestamps |
+| **Execution Time** | `completion_time - start_time` | Workload performance | Job timestamps |
+| **CPU Time (user)** | `cpu_times_end.user - cpu_times_start.user` | Compute efficiency | `psutil.Process().cpu_times()` |
+| **CPU Time (system)** | `cpu_times_end.system - cpu_times_start.system` | Kernel overhead | `psutil.Process().cpu_times()` |
+| **Context Switches (voluntary)** | `ctx_end.voluntary - ctx_start.voluntary` | Blocking I/O frequency | `psutil.Process().num_ctx_switches()` |
+| **Context Switches (involuntary)** | `ctx_end.involuntary - ctx_start.involuntary` | Preemption frequency | `psutil.Process().num_ctx_switches()` |
+| **Memory (RSS)** | `memory_info_end.rss - memory_info_start.rss` | Resource consumption | `psutil.Process().memory_info()` |
+| **Lock Contention Time** | Custom instrumentation around locks | Synchronization cost | `time.perf_counter()` deltas |
+| **IPC Overhead** | Timing queue operations | Process communication cost | `time.perf_counter()` |
+| **Starvation Events** | Count of jobs with `waiting_time > 30s` | Scheduling fairness | Job metadata analysis |
+| **Fairness (CoV)** | Coefficient of variation in waiting times | Distribution equity | Statistical analysis |
+
+**Note on Platform**: Measurements performed on WSL2 Ubuntu for OS realism. `perf` tooling noted as future work (requires native Linux kernel).
+
+---
+
+**Appendix B: Directory Structure**
 
 ```
 Process_Task-server/
@@ -333,3 +395,74 @@ Process_Task-server/
 │   └── week4_scheduling/
 └── logs/
 ```
+
+---
+
+**Appendix C: System Architecture Diagram**
+
+```
+                     Load Generator (Locust)
+                              │
+                              ▼
+                   ┌──────────────────────┐
+                   │   Flask/FastAPI      │
+                   │   HTTP Endpoint      │
+                   │   POST /run          │
+                   └──────────────────────┘
+                              │
+                              ▼
+                   ┌──────────────────────┐
+                   │      Scheduler       │
+                   │   (FIFO/Priority)    │
+                   │  - enqueue(job)      │
+                   │  - dequeue() → job   │
+                   └──────────────────────┘
+                              │
+                              ▼
+                   ┌──────────────────────┐
+                   │     Dispatcher       │
+                   │  - pulls from queue  │
+                   │  - submits to exec   │
+                   └──────────────────────┘
+                              │
+           ┌──────────────────┼──────────────────┐
+           ▼                  ▼                  ▼
+    ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+    │  Thread     │   │   Process   │   │    Async    │
+    │  Pool       │   │   Pool      │   │   Event     │
+    │  Executor   │   │   Executor  │   │   Loop      │
+    └─────────────┘   └─────────────┘   └─────────────┘
+           │                  │                  │
+           └──────────────────┼──────────────────┘
+                              ▼
+                   ┌──────────────────────┐
+                   │   Workload Suite     │
+                   │ - cpu_bound          │
+                   │ - io_bound           │
+                   │ - memory_bound       │
+                   │ - mixed              │
+                   │ - ml_simple          │
+                   └──────────────────────┘
+                              │
+                              ▼
+                   ┌──────────────────────┐
+                   │  Metrics Tracker     │
+                   │  (Delta-based)       │
+                   │ - CPU time           │
+                   │ - Context switches   │
+                   │ - Memory             │
+                   └──────────────────────┘
+                              │
+                              ▼
+                   ┌──────────────────────┐
+                   │  Experiment Logger   │
+                   │  (JSONL output)      │
+                   └──────────────────────┘
+```
+
+**Data Flow**:
+1. Locust → HTTP request with `{type, params, priority}`
+2. Server → creates Job object → enqueues to Scheduler
+3. Dispatcher → dequeues Job → submits to Executor
+4. Executor → runs workload with Metrics tracking
+5. Metrics → logged to JSONL → aggregated for analysis
